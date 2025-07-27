@@ -4,7 +4,7 @@ import { MainLayout } from '@/components/layouts/main-layout'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { getCurrentUser, checkUserOnboarding } from '@/lib/actions/auth'
-import { Shield, User as UserIcon, Star } from 'lucide-react'
+import { Shield } from 'lucide-react'
 
 export default async function DashboardPage() {
   const { userId } = await auth()

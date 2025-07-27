@@ -62,7 +62,7 @@ export default function OnboardingPage() {
           message: result.error || 'Error al completar el perfil',
         })
       }
-    } catch (error) {
+    } catch {
       form.setError('root', {
         message: 'Error inesperado. Por favor intenta nuevamente.',
       })

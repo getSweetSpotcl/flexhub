@@ -85,7 +85,13 @@ export function Navbar() {
                 <DropdownMenuItem asChild>
                   <Link href="/dashboard">
                     <User className="mr-2 h-4 w-4" />
-                    Mi Cuenta
+                    Dashboard
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/profile">
+                    <User className="mr-2 h-4 w-4" />
+                    Mi Perfil
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
@@ -158,7 +164,15 @@ export function Navbar() {
                         onClick={() => setIsOpen(false)}
                       >
                         <User className="h-4 w-4" />
-                        Mi Cuenta
+                        Dashboard
+                      </Link>
+                      <Link
+                        href="/profile"
+                        className="flex items-center space-x-2 rounded-md px-3 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground"
+                        onClick={() => setIsOpen(false)}
+                      >
+                        <User className="h-4 w-4" />
+                        Mi Perfil
                       </Link>
                       <Link
                         href="/dashboard/bookings"
