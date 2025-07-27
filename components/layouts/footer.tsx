@@ -45,7 +45,7 @@ export function Footer() {
 
   return (
     <footer className="border-t bg-background">
-      <div className="container">
+      <div className="container mx-auto px-4">
         {/* Main Footer Content */}
         <div className="grid grid-cols-1 gap-8 py-16 md:grid-cols-2 lg:grid-cols-5">
           {/* Brand Section */}

@@ -4,53 +4,76 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Development Commands
 
-- **REF**: when the user requests code examples, setup or configuration steps, or library/API documentation always use ref mcp server
 - **Development server**: `pnpm dev` (uses Turbopack for faster builds)
-- **Build**: `pnpm build`
+- **Build**: `pnpm build` (includes Prisma generate)
 - **Production server**: `pnpm start`
-- **Lint**: `pnpm lint`
-- **Format**: `pnpm format`
+- **Lint**: `pnpm lint` / `pnpm lint:fix`
+- **Format**: `pnpm format` / `pnpm format:check`
 - **Type check**: `pnpm typecheck`
+- **Database**:
+  - Generate Prisma client: `pnpm db:generate`
+  - Push schema changes: `pnpm db:push`
+  - Create migration: `pnpm db:migrate`
+  - Open Prisma Studio: `pnpm db:studio`
 
 ## Architecture Overview
 
-This is a Next.js 15 application using the App Router with TypeScript and Tailwind CSS v4. Key architectural decisions:
+**FlexHub** is a coworking space booking platform for Chile built with Next.js 15, featuring:
 
-- **UI Framework**: Next.js 15 with App Router architecture
-- **Styling**: Tailwind CSS v4 with shadcn/ui components (New York style)
-- **Component System**: Radix UI primitives with shadcn/ui styling
+- **Authentication**: Clerk for user management with custom onboarding and verification system
+- **Database**: PostgreSQL with Prisma ORM - comprehensive schema for spaces, bookings, users, reviews
+- **Payment**: Integration ready for Chilean providers (Transbank/Flow)
+- **Core Features**: Space listings, booking system, user verification (RUT), messaging, reviews
+- **Localization**: Spanish (es_CL) focused, Chilean market specific (RUT validation, regions)
+
+## Database Architecture
+
+The application uses a sophisticated Prisma schema with:
+
+- **User System**: Roles (Guest/Host/Admin), verification tiers, trust scores, Chilean RUT support
+- **Space Management**: Multiple space types, pricing models, availability tracking, location-based search
+- **Booking Flow**: Complete booking lifecycle with payment integration and messaging
+- **Verification System**: Document upload and approval workflow for user verification
+- **Review System**: Bidirectional reviews with detailed rating categories
+
+## Key Technical Decisions
+
+- **UI Framework**: Next.js 15 App Router with TypeScript and Tailwind CSS v4
+- **Styling**: shadcn/ui components (New York style) with Radix UI primitives
 - **Fonts**: Geist Sans and Geist Mono from Google Fonts
-- **Path Aliases**: `@/*` maps to project root for imports
-- **Mock Data**: Never use mock or fake data, always create the api and query directly to the database
+- **File Upload**: UploadThing integration for document verification
+- **Middleware**: Clerk middleware with protected routes configuration
+- **No Mock Data**: Always query real database, never use fake/mock data
 
 ## Project Structure
 
-- `app/` - Next.js App Router pages and layouts
+- `app/(auth)/` - Authentication pages (login, register, onboarding)
+- `app/(dashboard)/` - Protected dashboard pages (profile, verification)
+- `app/api/` - API routes (webhooks, health, cron jobs, uploadthing)
 - `components/ui/` - shadcn/ui component library
-- `lib/` - Shared utilities (includes `cn()` for class merging)
-- `public/` - Static assets
+- `components/verification/` - Document upload components
+- `lib/actions/` - Server actions for auth and verification
+- `lib/validations/` - Zod schemas including RUT validation
+- `prisma/` - Database schema and migrations
+- `docs/` - Documentation and project planning
 
-## Key Configuration
+## Import Aliases
 
-- **TypeScript**: Strict mode enabled with Next.js plugin
-- **shadcn/ui**: Configured with New York style, RSC support, and Lucide icons
-- **Tailwind**: CSS variables enabled, config in `app/globals.css`
-- **Import Aliases**:
-  - `@/components` → `components/`
-  - `@/lib` → `lib/`
-  - `@/utils` → `lib/utils`
-  - `@/ui` → `components/ui/`
+- `@/components` → `components/`
+- `@/lib` → `lib/`
+- `@/utils` → `lib/utils`
+- `@/ui` → `components/ui/`
 
-## Development Notes
+## Development Guidelines
 
-- Use the `cn()` utility from `@/lib/utils` for conditional class merging
+- Use `cn()` utility from `@/lib/utils` for conditional class merging
 - Follow shadcn/ui patterns for new components
-- Tailwind CSS v4 uses the new CSS-first configuration approach
+- All database operations should use Prisma client from `@/lib/db`
+- User authentication handled via Clerk with `clerkId` references
+- Chilean-specific features: RUT validation, regional data, payment providers
 
-## Search and Documentation Strategies
+## Search and Documentation
 
-- Use ref para buscar documentacion en vez de context7 solo usa context7 cuando no encuentres respuestas usando REF.
-
-## Documentation Management
-
-- Guarda todos los archivos md de documentacion en la carpeta docs
+- **ALWAYS USE REF FIRST**: When user requests code examples, setup/configuration steps, or library/API documentation, ALWAYS use the ref MCP server first
+- Only use context7 when ref doesn't provide adequate answers  
+- Store all markdown documentation in `docs/` folder

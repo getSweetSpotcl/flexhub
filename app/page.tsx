@@ -58,7 +58,7 @@ export default function Home() {
     <MainLayout>
       {/* Hero Section */}
       <section className="relative py-20 lg:py-32">
-        <div className="container">
+        <div className="container mx-auto px-4">
           <div className="mx-auto max-w-4xl text-center">
             <h1 className="text-4xl font-bold tracking-tight sm:text-6xl">
               Encuentra tu <span className="text-primary">espacio ideal</span>{' '}
@@ -89,7 +89,7 @@ export default function Home() {
 
       {/* Features Section */}
       <section className="py-20 bg-muted/50">
-        <div className="container">
+        <div className="container mx-auto px-4">
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
               ¿Por qué elegir FlexHub?
@@ -119,7 +119,7 @@ export default function Home() {
 
       {/* Space Types Section */}
       <section className="py-20">
-        <div className="container">
+        <div className="container mx-auto px-4">
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
               Tipos de Espacios Disponibles
@@ -157,7 +157,7 @@ export default function Home() {
 
       {/* CTA Section */}
       <section className="py-20 bg-primary">
-        <div className="container">
+        <div className="container mx-auto px-4">
           <div className="mx-auto max-w-4xl text-center">
             <h2 className="text-3xl font-bold tracking-tight text-primary-foreground sm:text-4xl">
               ¿Tienes un espacio disponible?
@@ -188,7 +188,7 @@ export default function Home() {
 
       {/* Stats Section */}
       <section className="py-20">
-        <div className="container">
+        <div className="container mx-auto px-4">
           <div className="mx-auto max-w-4xl">
             <div className="grid grid-cols-1 gap-8 sm:grid-cols-3">
               <div className="text-center">

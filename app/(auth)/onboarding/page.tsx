@@ -141,7 +141,7 @@ export default function OnboardingPage() {
                     <FormControl>
                       <RadioGroup
                         onValueChange={field.onChange}
-                        value={field.value}
+                        value={field.value || ''}
                         className="grid gap-4"
                       >
                         <label

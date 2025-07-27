@@ -17,12 +17,28 @@ export async function completeOnboarding(data: OnboardingFormData) {
     const validatedData = onboardingSchema.parse(data)
 
     // Buscar el usuario por clerkId
-    const existingUser = await prisma.user.findUnique({
+    let existingUser = await prisma.user.findUnique({
       where: { clerkId: userId },
     })
 
+    // Si no existe el usuario, crearlo (fallback en caso de que el webhook no haya funcionado)
     if (!existingUser) {
-      return { success: false, error: 'Usuario no encontrado' }
+      const { currentUser } = await import('@clerk/nextjs/server')
+      const clerkUser = await currentUser()
+      
+      if (!clerkUser) {
+        return { success: false, error: 'No se pudo obtener información del usuario' }
+      }
+
+      existingUser = await prisma.user.create({
+        data: {
+          clerkId: userId,
+          email: clerkUser.emailAddresses[0]?.emailAddress || '',
+          firstName: clerkUser.firstName,
+          lastName: clerkUser.lastName,
+          avatar: clerkUser.imageUrl,
+        },
+      })
     }
 
     // Verificar si el RUT ya está en uso
