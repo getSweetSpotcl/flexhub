@@ -12,14 +12,18 @@ const isPublicRoute = createRouteMatcher([
   '/terms',
   '/privacy',
   '/api/webhooks/(.*)',
+  '/onboarding',
+  '/api/uploadthing/(.*)',
 ])
 
-const isOnboardingRoute = createRouteMatcher(['/onboarding'])
-
 export default clerkMiddleware(async (auth, request) => {
-  if (!isPublicRoute(request)) {
-    await auth.protect()
+  // Allow public routes to pass through
+  if (isPublicRoute(request)) {
+    return
   }
+
+  // Protect all other routes
+  await auth.protect()
 })
 
 export const config = {

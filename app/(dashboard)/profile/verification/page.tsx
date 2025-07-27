@@ -5,24 +5,25 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Shield, CheckCircle2, Clock, XCircle, Phone } from 'lucide-react'
-import { getCurrentUser, checkUserOnboarding } from '@/lib/actions/auth'
+import { getCurrentUser } from '@/lib/actions/auth'
 import { getVerificationStatus } from '@/lib/actions/verification'
+import { auth } from '@clerk/nextjs/server'
 
 export default async function VerificationPage() {
-  const { needsOnboarding, isAuthenticated } = await checkUserOnboarding()
+  const { userId } = await auth()
   
-  if (!isAuthenticated) {
+  if (!userId) {
     redirect('/login')
-  }
-  
-  if (needsOnboarding) {
-    redirect('/onboarding')
   }
 
   const user = await getCurrentUser()
   const verificationStatus = await getVerificationStatus()
 
-  if (!user || !verificationStatus) {
+  if (!user) {
+    redirect('/onboarding')
+  }
+
+  if (!verificationStatus) {
     redirect('/dashboard')
   }
 

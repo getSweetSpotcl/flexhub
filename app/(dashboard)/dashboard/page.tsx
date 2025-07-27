@@ -14,14 +14,18 @@ export default async function DashboardPage() {
     redirect('/login')
   }
 
-  // Verificar si necesita onboarding
-  const { needsOnboarding } = await checkUserOnboarding()
-  if (needsOnboarding) {
+  // Obtener usuario de la base de datos
+  const dbUser = await getCurrentUser()
+  
+  // Si no existe usuario en BD pero está autenticado, redirigir a onboarding
+  if (!dbUser) {
     redirect('/onboarding')
   }
 
-  // Obtener usuario de la base de datos
-  const dbUser = await getCurrentUser()
+  // Verificar si completó el onboarding básico
+  if (!dbUser.role || !dbUser.firstName || !dbUser.rut) {
+    redirect('/onboarding')
+  }
 
   return (
     <MainLayout>
