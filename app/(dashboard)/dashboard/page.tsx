@@ -2,25 +2,52 @@ import { auth, currentUser } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import { MainLayout } from '@/components/layouts/main-layout'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { getCurrentUser, checkUserOnboarding } from '@/lib/actions/auth'
+import { Shield, User as UserIcon, Star } from 'lucide-react'
 
 export default async function DashboardPage() {
   const { userId } = await auth()
-  const user = await currentUser()
+  const clerkUser = await currentUser()
 
   if (!userId) {
     redirect('/login')
   }
 
+  // Verificar si necesita onboarding
+  const { needsOnboarding } = await checkUserOnboarding()
+  if (needsOnboarding) {
+    redirect('/onboarding')
+  }
+
+  // Obtener usuario de la base de datos
+  const dbUser = await getCurrentUser()
+
   return (
     <MainLayout>
       <div className="container py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold">
-            Bienvenido, {user?.firstName || 'Usuario'}!
-          </h1>
-          <p className="text-muted-foreground">
-            Gestiona tus espacios y reservas desde aquí
-          </p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold">
+                Bienvenido, {dbUser?.firstName || clerkUser?.firstName || 'Usuario'}!
+              </h1>
+              <p className="text-muted-foreground">
+                Gestiona tus espacios y reservas desde aquí
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Badge variant={dbUser?.role === 'HOST' ? 'default' : 'secondary'}>
+                {dbUser?.role === 'HOST' ? 'Host' : 'Guest'}
+              </Badge>
+              {dbUser?.isVerified && (
+                <Badge variant="outline" className="gap-1">
+                  <Shield className="h-3 w-3" />
+                  Verificado
+                </Badge>
+              )}
+            </div>
+          </div>
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
@@ -88,14 +115,27 @@ export default async function DashboardPage() {
               <div className="space-y-2">
                 <p>
                   <strong>Email:</strong>{' '}
-                  {user?.emailAddresses[0]?.emailAddress}
+                  {clerkUser?.emailAddresses[0]?.emailAddress}
                 </p>
                 <p>
-                  <strong>ID:</strong> {user?.id}
+                  <strong>Nombre completo:</strong>{' '}
+                  {dbUser?.firstName} {dbUser?.lastName}
+                </p>
+                <p>
+                  <strong>RUT:</strong> {dbUser?.rut || 'No registrado'}
+                </p>
+                <p>
+                  <strong>Teléfono:</strong> {dbUser?.phone || 'No registrado'}
+                </p>
+                <p>
+                  <strong>Tipo de cuenta:</strong>{' '}
+                  <Badge variant="outline" className="ml-1">
+                    {dbUser?.role === 'HOST' ? 'Host' : 'Guest'}
+                  </Badge>
                 </p>
                 <p>
                   <strong>Fecha de registro:</strong>{' '}
-                  {user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
+                  {dbUser?.createdAt ? new Date(dbUser.createdAt).toLocaleDateString('es-CL') : 'N/A'}
                 </p>
               </div>
             </CardContent>
