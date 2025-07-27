@@ -1,9 +1,9 @@
-import { SignIn } from '@clerk/nextjs'
+import { SignUp } from '@clerk/nextjs'
 
-export default function LoginPage() {
+export default function RegisterPage() {
   return (
     <div className="flex justify-center">
-      <SignIn
+      <SignUp
         appearance={{
           elements: {
             formButtonPrimary: 'bg-primary hover:bg-primary/90',
