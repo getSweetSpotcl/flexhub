@@ -1,0 +1,21 @@
+{
+  "framework": "nextjs",
+  "buildCommand": "pnpm build",
+  "devCommand": "pnpm dev",
+  "installCommand": "pnpm install",
+  "functions": {
+    "app/api/**/*.ts": {
+      "maxDuration": 30
+    }
+  },
+  "crons": [
+    {
+      "path": "/api/cron/cleanup-expired-bookings",
+      "schedule": "0 */6 * * *"
+    }
+  ],
+  "regions": ["cle1"],
+  "env": {
+    "NODE_ENV": "production"
+  }
+}

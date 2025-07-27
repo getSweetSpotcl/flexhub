@@ -1,0 +1,7 @@
+{
+  "mcpServers": {
+    "semgrep": {
+      "command": "mcp-server-semgrep"
+    }
+  }
+}

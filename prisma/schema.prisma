@@ -1,0 +1,267 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User model
+model User {
+  id                String   @id @default(cuid())
+  clerkId          String   @unique
+  email            String   @unique
+  role             UserRole @default(GUEST)
+  
+  // Profile
+  firstName        String?
+  lastName         String?
+  phone            String?
+  rut              String?  @unique
+  avatar           String?
+  
+  // Verification
+  isVerified       Boolean  @default(false)
+  verificationTier VerificationTier @default(BASIC)
+  trustScore       Int      @default(0)
+  
+  // Ratings
+  overallRating    Float?
+  totalReviews     Int      @default(0)
+  
+  // Timestamps
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  
+  // Relations
+  ownedSpaces      Space[]
+  bookings         Booking[]
+  sentMessages     Message[]
+  reviews          Review[] @relation("ReviewsGiven")
+  receivedReviews  Review[] @relation("ReviewsReceived")
+  
+  @@map("users")
+}
+
+// Space model
+model Space {
+  id               String      @id @default(cuid())
+  title            String
+  description      String      @db.Text
+  spaceType        SpaceType
+  capacity         Int
+  
+  // Pricing
+  pricePerHour     Decimal     @db.Decimal(10, 0)
+  pricePerDay      Decimal?    @db.Decimal(10, 0)
+  
+  // Location
+  address          String
+  city             String
+  region           String
+  latitude         Float
+  longitude        Float
+  
+  // Features
+  amenities        String[]
+  images           String[]
+  
+  // Business
+  status           SpaceStatus @default(DRAFT)
+  isVerified       Boolean     @default(false)
+  averageRating    Float?
+  totalBookings    Int         @default(0)
+  
+  // Timestamps
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  
+  // Relations
+  ownerId          String
+  owner            User        @relation(fields: [ownerId], references: [id])
+  bookings         Booking[]
+  availability     Availability[]
+  
+  @@index([status, spaceType])
+  @@index([latitude, longitude])
+  @@map("spaces")
+}
+
+// Booking model
+model Booking {
+  id               String        @id @default(cuid())
+  status           BookingStatus @default(PENDING)
+  
+  // Timing
+  startDate        DateTime
+  endDate          DateTime
+  totalHours       Int
+  
+  // Pricing
+  pricePerHour     Decimal       @db.Decimal(10, 0)
+  subtotal         Decimal       @db.Decimal(10, 0)
+  platformFee      Decimal       @db.Decimal(10, 0)
+  taxes            Decimal       @db.Decimal(10, 0)
+  discountAmount   Decimal       @default(0) @db.Decimal(10, 0)
+  totalAmount      Decimal       @db.Decimal(10, 0)
+  
+  // Payment
+  paymentProvider  PaymentProvider?
+  paymentStatus    PaymentStatus @default(PENDING)
+  paidAt           DateTime?
+  paymentDeadline  DateTime?
+  
+  // Chilean specific
+  invoiceNumber    String?
+  invoiceUrl       String?
+  
+  // Transbank specific
+  transbankToken   String?
+  transbankAuthorizationCode String?
+  
+  // Timestamps
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  
+  // Relations
+  spaceId          String
+  space            Space         @relation(fields: [spaceId], references: [id])
+  guestId          String
+  guest            User          @relation(fields: [guestId], references: [id])
+  messages         Message[]
+  
+  @@index([status, createdAt])
+  @@index([guestId, status])
+  @@map("bookings")
+}
+
+// Availability model
+model Availability {
+  id          String          @id @default(cuid())
+  spaceId     String
+  startDate   DateTime
+  endDate     DateTime
+  type        AvailabilityType @default(AVAILABLE)
+  bookingId   String?
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  space       Space    @relation(fields: [spaceId], references: [id])
+  
+  @@index([spaceId, startDate, endDate])
+  @@map("availability")
+}
+
+// Message model
+model Message {
+  id          String   @id @default(cuid())
+  content     String   @db.Text
+  bookingId   String
+  senderId    String
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  booking     Booking  @relation(fields: [bookingId], references: [id])
+  sender      User     @relation(fields: [senderId], references: [id])
+  
+  @@index([bookingId, createdAt])
+  @@map("messages")
+}
+
+// Review model
+model Review {
+  id          String   @id @default(cuid())
+  rating      Int      // 1-5 stars
+  comment     String?  @db.Text
+  
+  // Review categories
+  cleanlinessRating   Int?
+  locationRating      Int?
+  amenitiesRating     Int?
+  hostRating          Int?
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations - bidirectional reviews
+  reviewerId  String
+  revieweeId  String
+  bookingId   String   @unique
+  
+  reviewer    User     @relation("ReviewsGiven", fields: [reviewerId], references: [id])
+  reviewee    User     @relation("ReviewsReceived", fields: [revieweeId], references: [id])
+  
+  @@index([revieweeId, createdAt])
+  @@map("reviews")
+}
+
+// Enums
+enum UserRole {
+  GUEST
+  HOST
+  ADMIN
+}
+
+enum VerificationTier {
+  BASIC
+  VERIFIED
+  PREMIUM
+}
+
+enum SpaceType {
+  PRIVATE_OFFICE
+  SHARED_DESK
+  MEETING_ROOM
+  CONFERENCE_ROOM
+  COWORKING_SPACE
+  PHONE_BOOTH
+}
+
+enum SpaceStatus {
+  DRAFT
+  PENDING_REVIEW
+  ACTIVE
+  PAUSED
+  REJECTED
+  SUSPENDED
+}
+
+enum BookingStatus {
+  PENDING
+  PENDING_PAYMENT
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+  DISPUTED
+}
+
+enum PaymentProvider {
+  TRANSBANK
+  FLOW
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  REFUNDED
+  DISPUTED
+}
+
+enum AvailabilityType {
+  AVAILABLE
+  BLOCKED
+  BOOKED
+}
