@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import { MainLayout } from '@/components/layouts/main-layout'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { getCurrentUser, checkUserOnboarding } from '@/lib/actions/auth'
+import { getCurrentUser } from '@/lib/actions/auth'
 import { Shield } from 'lucide-react'
 
 export default async function DashboardPage() {
